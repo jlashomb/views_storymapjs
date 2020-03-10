@@ -1,0 +1,6 @@
+name: Views StoryMapJS
+type: module
+description: Views StoryMapJS
+core: 8.x
+dependencies:
+ - drupal:views

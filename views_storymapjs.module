@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Views TimelineJS API, theming, libraries, etc.
+ */
+
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Template\Attribute;
+
+/**
+ * Implements hook_help().
+ */
+function views_storymapjs_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Help for the settings form.
+    case 'views_storymapjs.admin':
+      return '<p>' . t('Configure how the Views StoryMapJS plugin behaves on the site. Select whether to use a CDN or serve the library locally.') . '</p>';
+  }
+}
+
+/**
+ * Prepares variables for the Mapplic style template.
+ *
+ * Default template: views-mapplic-view-mapplic.html.twig.
+ *
+ * @param array $vars
+ *   An associative array containing:
+ *   - view: A ViewExecutable object.
+ *   - rows: The raw row data.
+ */
+function template_preprocess_views_storymapjs_view_storymapjs(array &$vars) {
+  $config = \Drupal::config('views_timelinejs.settings');
+  $library_location = $config->get('library_location');
+  $view = $vars['view'];
+
+  // Set a unique id attribute for the timeline embed div.  Also set a width and
+  // height for the div.  This is required for proper styling of the timeline.
+  // See https://timeline.knightlab.com/docs/instantiate-a-timeline.html.
+  $id = Html::getId('storymapjs_' . $view->storage->id() . '_' . $view->current_display);
+  $style = 'width: ' . $vars['options']['storymapjs_options']['width'] . '; height: ' . $vars['options']['storymapjs_options']['height'] . ';';
+  $vars['attributes'] = new Attribute(['id' => $id, 'style' => $style]);
+
+  // Load required libraries and styles.
+  $vars['#attached']['library'][] = 'views_storymapjs/storymapjs.local';
+  $vars['#attached']['library'][] = 'views_storymapjs/views_storymapjs';
+  $vars['#attached']['drupalSettings']['StoryMapJS'][] = [
+    'options' => _sanitize_storymap_options($vars['options']['storymapjs_options']),
+    'source' => $vars['rows'],
+    'embed_id' => $id,
+    'processed' => FALSE,
+  ];
+
+  $vars['json'] = json_encode($vars['rows']);
+}
+
+/**
+ * Sanitizes the timeline options.
+ */
+function _sanitize_storymap_options($options) {
+  // Sanitize the options.
+  $options = array_map(['Drupal\Component\Utility\Html', 'escape'], $options);
+  // Remove empty values from the options before returning.
+  return array_filter($options);
+}

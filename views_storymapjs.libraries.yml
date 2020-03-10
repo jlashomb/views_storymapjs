@@ -1,0 +1,30 @@
+storymapjs.cdn:
+  remote: https://github.com/NUKnightLab/StoryMapJS
+  version: 0.7.1
+  license:
+    name: MPL
+    url: https://github.com/NUKnightLab/StoryMapJS/blob/master/LICENSE
+    gpl-compatible: false
+  css:
+    component:
+      https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css: { type: external }
+  js:
+    https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap-min.js: { type: external }
+
+storymapjs.local:
+  remote: https://timeline.knightlab.com
+  version: 0.7.1
+  license:
+    name: MPL
+    url: https://github.com/NUKnightLab/StoryMapJS/blob/master/LICENSE
+    gpl-compatible: false
+  css:
+    component:
+      /libraries/StoryMapJS/compiled/css/storymap.css: { }
+  js:
+    /libraries/StoryMapJS/compiled/js/storymap.js: { }
+
+views_storymapjs:
+  version: 0.x
+  js:
+    js/views_storymapjs.js: { }
