@@ -2,10 +2,11 @@
 (function($){
   $(document).ready(function() {
 
-    var data;
+    var data, options;
     drupalSettings.StoryMapJS.forEach(function(map, key) {
       if (map['processed'] != true) {
         data = map['source'];
+        options = map['options'];
       }
       map['processed'] = true;
     });
@@ -14,7 +15,7 @@
     var storymap_data = data;
 
     // certain settings must be passed within a separate options object
-    var storymap_options = {};
+    var storymap_options = options;
 
     var storymap = new VCO.StoryMap('mapdiv', storymap_data, storymap_options);
     window.onresize = function(event) {

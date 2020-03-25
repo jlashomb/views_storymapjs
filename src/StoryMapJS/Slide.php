@@ -29,11 +29,32 @@ class Slide implements SlideInterface {
   protected $location_lon;
 
   /**
+   * The location zoom.
+   *
+   * @var string
+   */
+  protected $location_zoom;
+
+  /**
+   * The slide date.
+   *
+   * @var string
+   */
+  protected $date;
+
+  /**
    * The slide headline.
    *
    * @var string
    */
   protected $headline;
+
+  /**
+   * The slide text.
+   *
+   * @var string
+   */
+  protected $text;
 
   /**
    * The slide media url.
@@ -57,20 +78,10 @@ class Slide implements SlideInterface {
   protected $media_credit;
 
   /**
-   * Constructs a new Location object.
+   * Constructs a new Slide object.
    *
-   * @param string $id
-   *   The id of the text resource.
-   * @param string $title
-   *   The title of the text resource.
-   * @param string $x
-   *   The x of the text resource.
-   * @param string $y
-   *   The y of the text resource.
-   * @param string $description
-   *   The description of the text resource.
-   * @param string $link
-   *   The link of the text resource.
+   * @param string $type
+   *   The type of the slide.
    */
   public function __construct($type = NULL) {
     if (!empty($type)) {
@@ -81,9 +92,19 @@ class Slide implements SlideInterface {
   /**
    * {@inheritdoc}
    */
-  public function setLocation($location_lat, $location_lon) {
+  public function setLocation($location_lat, $location_lon, $location_zoom = NULL) {
     $this->location_lat = $location_lat;
     $this->location_lon = $location_lon;
+    if (!empty($location_zoom)) {
+      $this->location_zoom = $location_zoom;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setDate($date) {
+    $this->date = $date;
   }
 
   /**
@@ -122,6 +143,9 @@ class Slide implements SlideInterface {
     if (!empty($this->type)) {
       $location['type'] = $this->type;
     }
+    if (!empty($this->date)) {
+      $location['date'] = $this->date;
+    }
     if (!empty($this->headline)) {
       $location['text']['headline'] = $this->headline;
     }
@@ -136,6 +160,9 @@ class Slide implements SlideInterface {
     }
     if (!empty($this->location_lon)) {
       $location['location']['lon'] = $this->location_lon;
+    }
+    if (!empty($this->location_zoom)) {
+      $location['location']['zoom'] = $this->location_zoom;
     }
     if (!empty($this->media_url)) {
       $location['media']['url'] = $this->media_url;

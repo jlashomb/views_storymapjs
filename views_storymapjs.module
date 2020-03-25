@@ -46,7 +46,7 @@ function template_preprocess_views_storymapjs_view_storymapjs(array &$vars) {
   $vars['#attached']['library'][] = 'views_storymapjs/storymapjs.local';
   $vars['#attached']['library'][] = 'views_storymapjs/views_storymapjs';
   $vars['#attached']['drupalSettings']['StoryMapJS'][] = [
-    'options' => _sanitize_storymap_options($vars['options']['storymapjs_options']),
+    'options' => _sanitize_storymap_options($vars['options']['storymap_options']),
     'source' => $vars['rows'],
     'embed_id' => $id,
     'processed' => FALSE,

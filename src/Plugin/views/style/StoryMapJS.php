@@ -76,6 +76,8 @@ class StoryMapJS extends StylePluginBase {
       'contains' => [
         'width' => ['default' => '100%'],
         'height' => ['default' => '40em'],
+        'map_type' => [],
+        'map_subdomains' => [],
       ],
     ];
 
@@ -83,13 +85,19 @@ class StoryMapJS extends StylePluginBase {
       'contains' => [
         'headline' => [],
         'text' => [],
+        'media' => [],
+        'media_caption' => [],
+        'media_credit' => [],
+        'call_to_action' => [],
       ],
     ];
 
     $options['storymapjs_fields'] = [
       'contains' => [
+        'latlon' => ['default' => ''],
         'lat' => ['default' => ''],
         'lon' => ['default' => ''],
+        'date' => ['default' => ''],
         'headline' => ['default' => ''],
         'text' => ['default' => ''],
         'media' => ['default' => ''],
@@ -134,6 +142,22 @@ class StoryMapJS extends StylePluginBase {
       '#size' => 10,
       '#maxlength' => 10,
     ];
+    $form['storymapjs_config']['map_type'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Map type or Map URL tile template'),
+      '#description' => $this->t('<strong>Map URL tile template:</strong> "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"<br><strong>Presets:</strong> stamen:toner-lite, stamen:toner, stamen:toner-lines, stamen:toner-labels, stamen:watercolor, osm:standard, mapbox:<em>map-id</em>'),
+      '#default_value' => $this->options['storymapjs_config']['map_type'],
+      '#size' => 100,
+      '#maxlength' => 256,
+    ];
+    $form['storymapjs_config']['map_subdomains'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Map Subdomains'),
+      '#description' => $this->t('Is only needed when using a custom URL tile template. It should be specified as a single string, where each character is a valid subdomain substitution (e.g. "abc"). These a substitutions for the "s" wildcard, {s}.'),
+      '#default_value' => $this->options['storymapjs_config']['map_subdomains'],
+      '#size' => 50,
+      '#maxlength' => 50,
+    ];
 
     $form['storymapjs_cover'] = [
       '#type' => 'details',
@@ -155,6 +179,30 @@ class StoryMapJS extends StylePluginBase {
       '#description' => $this->t('The selected field may contain any text, including HTML markup. (Supports replacement patterns from the first row.)'),
       '#default_value' => $this->options['storymapjs_cover']['text'],
     ];
+    $form['storymapjs_cover']['media'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Cover Media (URL or Rendered Field)'),
+      '#description' => $this->t('The selected field may contain any text, including HTML markup. (Supports replacement patterns from the first row.)'),
+      '#default_value' => $this->options['storymapjs_cover']['media'],
+    ];
+    $form['storymapjs_cover']['media_caption'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Cover Media Caption'),
+      '#description' => $this->t('The selected field may contain any text, including HTML markup. (Supports replacement patterns from the first row.)'),
+      '#default_value' => $this->options['storymapjs_cover']['media_caption'],
+    ];
+    $form['storymapjs_cover']['media_credit'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Cover Media Credit'),
+      '#description' => $this->t('The selected field may contain any text, including HTML markup. (Supports replacement patterns from the first row.)'),
+      '#default_value' => $this->options['storymapjs_cover']['media_credit'],
+    ];
+    $form['storymapjs_cover']['call_to_action'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Call to Action Button Text'),
+      '#description' => $this->t('The selected field may contain any text. Leave blank to hide. (Supports replacement patterns from the first row.)'),
+      '#default_value' => $this->options['storymapjs_cover']['call_to_action'],
+    ];
 
     // Field mapping.
     $form['storymapjs_fields'] = [
@@ -162,6 +210,13 @@ class StoryMapJS extends StylePluginBase {
       '#title' => $this->t('Field mappings'),
       '#description' => $this->t('Map your Views data fields to StoryMapJS slide properties.'),
       '#open' => TRUE,
+    ];
+    $form['storymapjs_fields']['date'] = [
+      '#type' => 'select',
+      '#options' => $view_fields_labels,
+      '#title' => $this->t('Date'),
+      '#description' => $this->t('The selected field may contain any year.'),
+      '#default_value' => $this->options['storymapjs_fields']['date'],
     ];
     $form['storymapjs_fields']['headline'] = [
       '#type' => 'select',
@@ -177,19 +232,33 @@ class StoryMapJS extends StylePluginBase {
       '#description' => $this->t('The selected field may contain any text, including HTML markup.'),
       '#default_value' => $this->options['storymapjs_fields']['text'],
     ];
+    $form['storymapjs_fields']['latlon'] = [
+      '#type' => 'select',
+      '#options' => $view_fields_labels,
+      '#title' => $this->t('Location Latitude and Longitude'),
+      '#description' => $this->t('The latitude and longitude in decimal form separated by a comma. This field takes precidence over the individual fields.'),
+      '#default_value' => $this->options['storymapjs_fields']['latlon'],
+    ];
     $form['storymapjs_fields']['lat'] = [
       '#type' => 'select',
       '#options' => $view_fields_labels,
       '#title' => $this->t('Location Latitude'),
-      '#description' => $this->t('The latitude in decimal form.'),
+      '#description' => $this->t('The latitude in decimal form. This field will be ignored if a value is found in the "Location Latitude and Longitude" field.'),
       '#default_value' => $this->options['storymapjs_fields']['lat'],
     ];
     $form['storymapjs_fields']['lon'] = [
       '#type' => 'select',
       '#options' => $view_fields_labels,
       '#title' => $this->t('Location Longitude'),
-      '#description' => $this->t('The longitude in decimal form.'),
+      '#description' => $this->t('The longitude in decimal form. This field will be ignored if a value is found in the "Location Latitude and Longitude" field.'),
       '#default_value' => $this->options['storymapjs_fields']['lon'],
+    ];
+    $form['storymapjs_fields']['zoom'] = [
+      '#type' => 'select',
+      '#options' => $view_fields_labels,
+      '#title' => $this->t('Location Zoom'),
+      '#description' => $this->t('The zoom level to use from 0 - 18. Leave blank for auto.'),
+      '#default_value' => $this->options['storymapjs_fields']['zoom'],
     ];
     $form['storymapjs_fields']['media'] = [
       '#type' => 'select',
@@ -224,11 +293,32 @@ class StoryMapJS extends StylePluginBase {
     // property exception.
     $this->renderFields($this->view->result);
 
+    if ($map_type = $this->options['storymapjs_config']['map_type']) {
+      $map->setType($this->tokenizeValue($map_type, 0));
+    }
+    if ($map_subdomains = $this->options['storymapjs_config']['map_subdomains']) {
+      $map->setMapSubdomains($this->tokenizeValue($map_subdomains, 0));
+    }
+    if ($cta = $this->options['storymapjs_cover']['call_to_action']) {
+      $map->setCallToAction($this->tokenizeValue($cta, 0));
+    }
+    if ($height = $this->options['storymapjs_config']['height']) {
+      $map->setHeight($this->tokenizeValue($height, 0));
+    }
+    if ($width = $this->options['storymapjs_config']['width']) {
+      $map->setWidth($this->tokenizeValue($width, 0));
+    }
+
     $slide = new Slide("overview");
     $headline = $this->tokenizeValue($this->options['storymapjs_cover']['headline']?:"", 0);
     $slide->setHeadline($headline);
     $text = $this->tokenizeValue($this->options['storymapjs_cover']['text']?:"", 0);
     $slide->setText($text);
+    $media = $this->tokenizeValue($this->options['storymapjs_cover']['media']?:"", 0);
+    $media = $this->extractUrl($media);
+    $caption = $this->tokenizeValue($this->options['storymapjs_cover']['media_caption']?:"", 0);
+    $credit = $this->tokenizeValue($this->options['storymapjs_cover']['media_credit']?:"", 0);
+    $slide->setMedia($media, $credit, $caption);
     $map->addSlide($slide);
 
     // Render slide arrays from the views data.
@@ -251,7 +341,7 @@ class StoryMapJS extends StylePluginBase {
       '#theme' => $this->themeFunctions(),
       '#view' => $this->view,
       '#options' => [
-        'storymapjs_options' => $this->options['storymapjs_config'],
+        'storymap_options' => $map->getStoryMapOptions(),
       ],
       '#rows' => $map->buildArray(),
     ];
@@ -333,15 +423,24 @@ class StoryMapJS extends StylePluginBase {
     $row_index = $this->view->row_index;
     $slide = new Slide();
 
+    $date = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['date']);
+    $slide->setDate($date);
+
     $headline = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['headline']);
     $slide->setHeadline($headline);
 
     $text = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['text']);
     $slide->setText($text);
 
-    $lat = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['lat']);
-    $lon = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['lon']);
-    $slide->setLocation($lat, $lon);
+    $latlon = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['latlon']);
+    $latlon = explode(',', preg_replace('/[^0-9\.\,\-]/', '', strip_tags($latlon)));
+    $lat = $latlon[0];
+    $lon = $latlon[1];
+    // If either lat or lon is empty, try to get the value from the individual field
+    $lat = $lat?:$this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['lat']);
+    $lon = $lon?:$this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['lon']);
+    $zoom = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['zoom']);
+    $slide->setLocation($lat, $lon, $zoom?:NULL);
 
     $media = $this->fetchMediaURL($row_index);
     $caption = $this->getRowFieldValue($row_index, $this->options['storymapjs_fields']['media_caption']);

@@ -36,6 +36,20 @@ class Storymap implements StorymapInterface {
   protected $map_type = "stamen:toner-lines";
 
   /**
+   * The storymap type.
+   *
+   * @var string
+   */
+  protected $map_subdomains;
+
+  /**
+   * The storymap map background color.
+   *
+   * @var string
+   */
+  protected $map_background_color;
+
+  /**
    * The storymap map_as_image mode.
    *
    * @var boolean
@@ -43,11 +57,53 @@ class Storymap implements StorymapInterface {
   protected $map_as_image = false;
 
   /**
+   * The storymap map_as_image mode.
+   *
+   * @var boolean
+   */
+  protected $call_to_action;
+
+  /**
    * The map's array of slides.
    *
    * @var \Drupal\views_storymapjs\StoryMapJS\SlideInterface[]
    */
   protected $slides = [];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setType($map_type) {
+    $this->map_type = $map_type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setMapSubdomains($map_subdomains) {
+    $this->map_subdomains = $map_subdomains;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHeight($height) {
+    $this->height = $height;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWidth($width) {
+    $this->width = $width;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCallToAction($call_to_action) {
+    $this->call_to_action = $call_to_action;
+  }
 
   /**
    * {@inheritdoc}
@@ -66,13 +122,34 @@ class Storymap implements StorymapInterface {
   /**
    * {@inheritdoc}
    */
+  public function getStoryMapOptions() {
+    $options = [];
+    if($this->map_type){
+      $options["map_type"] = $this->map_type;
+    }
+    if($this->map_subdomains){
+      $options["map_subdomains"] = $this->map_subdomains;
+    }
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildArray() {
     $map["width"] = $this->width;
     $map["height"] = $this->height;
     $map["storymap"] = [];
     $map["storymap"]["language"] = $this->language;
+    if($this->call_to_action){
+      $map["storymap"]["call_to_action"] = true;
+      $map["storymap"]["call_to_action_text"] = $this->call_to_action;
+    }
     if($this->map_type){
       $map["storymap"]["map_type"] = $this->map_type;
+    }
+    if($this->map_subdomains){
+      $map["storymap"]["map_subdomains"] = $this->map_subdomains;
     }
     if($this->map_as_image){
       $map["storymap"]["map_as_image"] = $this->map_as_image;
